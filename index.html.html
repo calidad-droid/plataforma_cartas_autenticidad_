@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartas de Autenticidad — Deltron</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; }
+.app { padding: 2rem; max-width: 1100px; margin: 0 auto; }
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.topbar h1 { font-size: 20px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.topbar h1 i { color: #185FA5; font-size: 22px; }
+.topbar span { font-size: 13px; color: #666; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+.stat { background: #fff; border: 0.5px solid #e0e0de; border-radius: 8px; padding: 1rem; }
+.stat-label { font-size: 13px; color: #666; margin-bottom: 4px; }
+.stat-value { font-size: 26px; font-weight: 500; }
+.actions { display: flex; gap: 8px; margin-bottom: 1.5rem; align-items: center; }
+.btn-primary { background: #E6F1FB; color: #185FA5; border: none; border-radius: 8px; padding: 8px 16px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+.btn-primary:hover { background: #B5D4F4; }
+.btn-outline { background: transparent; border: 0.5px solid #aaa; border-radius: 8px; padding: 8px 16px; font-size: 14px; cursor: pointer; color: #1a1a1a; display: flex; align-items: center; gap: 6px; }
+.btn-outline:hover { background: #f0f0ee; }
+.search-bar { flex: 1; }
+.search-bar input { width: 100%; padding: 8px 12px; border: 0.5px solid #d0d0ce; border-radius: 8px; font-size: 14px; background: #fff; color: #1a1a1a; }
+.search-bar input:focus { outline: none; border-color: #378ADD; }
+.table-wrap { background: #fff; border: 0.5px solid #e0e0de; border-radius: 12px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+thead th { background: #f5f5f3; padding: 10px 14px; text-align: left; font-size: 12px; font-weight: 500; color: #666; border-bottom: 0.5px solid #e0e0de; }
+tbody td { padding: 12px 14px; font-size: 13px; color: #1a1a1a; border-bottom: 0.5px solid #e8e8e6; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: #fafaf8; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+.badge-ok { background: #EAF3DE; color: #3B6D11; }
+.badge-pend { background: #FAEEDA; color: #854F0B; }
+.badge-anu { background: #FCEBEB; color: #A32D2D; }
+.icon-btn { background: none; border: none; cursor: pointer; color: #888; padding: 4px 6px; border-radius: 4px; font-size: 16px; }
+.icon-btn:hover { color: #1a1a1a; background: #f0f0ee; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.modal { background: #fff; border-radius: 12px; border: 0.5px solid #e0e0de; padding: 1.5rem; width: 500px; max-width: 95vw; }
+.modal h2 { font-size: 16px; font-weight: 500; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 8px; }
+.form-group { margin-bottom: 12px; }
+.form-group label { font-size: 12px; color: #666; display: block; margin-bottom: 4px; }
+.form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 0.5px solid #ccc; border-radius: 8px; font-size: 13px; background: #fff; color: #1a1a1a; }
+.form-group input:focus { outline: none; border-color: #378ADD; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1.5rem; }
+.qr-modal-body { text-align: center; }
+.qr-box { background: #f5f5f3; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; display: inline-block; }
+.code-badge { font-size: 18px; font-weight: 500; margin-top: 8px; color: #185FA5; }
+.verify-url { font-size: 11px; color: #888; margin-top: 4px; }
+.detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid #e8e8e6; font-size: 13px; gap: 12px; }
+.detail-row:last-child { border-bottom: none; }
+.detail-label { color: #666; white-space: nowrap; }
+.detail-val { text-align: right; font-weight: 500; }
+.empty { text-align: center; padding: 3rem; color: #aaa; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <h1><i class="ti ti-shield-check"></i> Cartas de autenticidad — Deltron</h1>
+    <span id="fecha-hoy"></span>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Total emitidas</div><div class="stat-value" id="total">0</div></div>
+    <div class="stat"><div class="stat-label">Activas</div><div class="stat-value" id="activas" style="color:#3B6D11">0</div></div>
+    <div class="stat"><div class="stat-label">Pendientes de firma</div><div class="stat-value" id="pendientes" style="color:#854F0B">0</div></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-primary" onclick="abrirNueva()"><i class="ti ti-plus"></i> Nueva carta</button>
+    <div class="search-bar"><input type="text" placeholder="Buscar por código, canal o cliente..." id="buscador" oninput="filtrar()"></div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:140px">Código</th>
+          <th style="width:90px">Fecha</th>
+          <th style="width:180px">Canal</th>
+          <th style="width:200px">Cliente final</th>
+          <th style="width:140px">Estado</th>
+          <th style="width:90px">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="modal-area"></div>
+
+<script>
+const hoy = new Date();
+document.getElementById('fecha-hoy').textContent = hoy.toLocaleDateString('es-PE', {day:'2-digit', month:'long', year:'numeric'});
+
+const cartas = [
+  { id:1, codigo:'CART-2026-001', fecha:'02/06/2026', canal:'Setelinf del Perú SAC', ruc_canal:'20552709293', cliente:'Soc. Italiana de Benef. y Asist.', ruc_cliente:'20100331951', oc:'002-2026', productos:'WIN PRO 11 64BIT / OFFICE H&B 2024', estado:'activa' },
+  { id:2, codigo:'CART-2026-002', fecha:'03/06/2026', canal:'Wictech EIRL', ruc_canal:'20612958255', cliente:'Operaciones Servicios y Sist. SRL', ruc_cliente:'20504424899', oc:'00000014907', productos:'MS 365 Empresa Estándar ESD', estado:'pendiente' },
+  { id:3, codigo:'CART-2026-003', fecha:'04/06/2026', canal:'Mingecon Perú EIRL', ruc_canal:'20529166151', cliente:'Colegio Emblemático Cerro de Pasco', ruc_cliente:'20529166151', oc:'CJDE/LIMA-16-2026', productos:'WIN PRO 11 64BIT (x10)', estado:'pendiente' },
+];
+
+let filtradas = [...cartas];
+
+function actualizarStats() {
+  document.getElementById('total').textContent = cartas.length;
+  document.getElementById('activas').textContent = cartas.filter(c=>c.estado==='activa').length;
+  document.getElementById('pendientes').textContent = cartas.filter(c=>c.estado==='pendiente').length;
+}
+
+function estadoBadge(e) {
+  if (e==='activa') return '<span class="badge badge-ok"><i class="ti ti-check" style="font-size:10px"></i> Activa</span>';
+  if (e==='pendiente') return '<span class="badge badge-pend"><i class="ti ti-clock" style="font-size:10px"></i> Pendiente firma</span>';
+  return '<span class="badge badge-anu"><i class="ti ti-x" style="font-size:10px"></i> Anulada</span>';
+}
+
+function renderTabla() {
+  const body = document.getElementById('tabla-body');
+  if (filtradas.length === 0) {
+    body.innerHTML = '<tr><td colspan="6" class="empty">No se encontraron cartas</td></tr>';
+    return;
+  }
+  body.innerHTML = filtradas.map(c => `
+    <tr>
+      <td style="font-weight:500;color:#185FA5">${c.codigo}</td>
+      <td>${c.fecha}</td>
+      <td title="${c.canal}">${c.canal}</td>
+      <td title="${c.cliente}">${c.cliente}</td>
+      <td>${estadoBadge(c.estado)}</td>
+      <td>
+        <button class="icon-btn" onclick="verQR(${c.id})" title="Ver QR"><i class="ti ti-qrcode"></i></button>
+        <button class="icon-btn" onclick="verDetalle(${c.id})" title="Ver detalle"><i class="ti ti-eye"></i></button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filtrar() {
+  const q = document.getElementById('buscador').value.toLowerCase();
+  filtradas = cartas.filter(c =>
+    c.codigo.toLowerCase().includes(q) ||
+    c.canal.toLowerCase().includes(q) ||
+    c.cliente.toLowerCase().includes(q)
+  );
+  renderTabla();
+}
+
+function cerrarModal() {
+  document.getElementById('modal-area').innerHTML = '';
+}
+
+function generarQR(canvasId, texto) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const size = 140, cells = 21, cell = Math.floor(size/cells);
+  const ctx = canvas.getContext('2d');
+  canvas.width = size; canvas.height = size;
+  ctx.fillStyle = '#fff'; ctx.fillRect(0,0,size,size);
+  ctx.fillStyle = '#1a1a1a';
+  const hash = texto.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  for (let r=0;r<cells;r++) for (let col=0;col<cells;col++) {
+    const corner = (r<7&&col<7)||(r<7&&col>=cells-7)||(r>=cells-7&&col<7);
+    const fill = corner ? true : ((r*31+col*17+hash*7)%3===0);
+    if (fill) ctx.fillRect(col*cell,r*cell,cell,cell);
+  }
+  [[0,0],[0,cells-7],[cells-7,0]].forEach(([r,c])=>{
+    ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=cell*0.15;
+    ctx.strokeRect(c*cell+cell*0.5,r*cell+cell*0.5,6*cell-cell,6*cell-cell);
+    ctx.fillRect((c+2)*cell,(r+2)*cell,3*cell,3*cell);
+  });
+}
+
+function verQR(id) {
+  const c = cartas.find(x=>x.id===id);
+  const url = `deltron.com.pe/verificar/${c.codigo}`;
+  document.getElementById('modal-area').innerHTML = `
+    <div class="modal-overlay" onclick="cerrarModal()">
+      <div class="modal" onclick="event.stopPropagation()">
+        <h2><i class="ti ti-qrcode"></i> Código QR de verificación</h2>
+        <div class="qr-modal-body">
+          <div class="qr-box">
+            <canvas id="qr-canvas" style="width:140px;height:140px;display:block;margin:0 auto"></canvas>
+            <div class="code-badge">${c.codigo}</div>
+            <div class="verify-url">${url}</div>
+          </div>
+          <p style="font-size:12px;color:#888;margin-bottom:0.5rem">Escanear para verificar autenticidad de la carta.</p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-outline" onclick="cerrarModal()">Cerrar</button>
+          <button class="btn-primary"><i class="ti ti-download"></i> Descargar QR</button>
+        </div>
+      </div>
+    </div>`;
+  setTimeout(() => generarQR('qr-canvas', url), 50);
+}
+
+function verDetalle(id) {
+  const c = cartas.find(x=>x.id===id);
+  document.getElementById('modal-area').innerHTML = `
+    <div class="modal-overlay" onclick="cerrarModal()">
+      <div class="modal" onclick="event.stopPropagation()">
+        <h2><i class="ti ti-file-text"></i> Detalle de carta</h2>
+        <div class="detail-row"><span class="detail-label">Código</span><span class="detail-val" style="color:#185FA5">${c.codigo}</span></div>
+        <div class="detail-row"><span class="detail-label">Fecha emisión</span><span class="detail-val">${c.fecha}</span></div>
+        <div class="detail-row"><span class="detail-label">Canal</span><span class="detail-val">${c.canal}</span></div>
+        <div class="detail-row"><span class="detail-label">RUC canal</span><span class="detail-val">${c.ruc_canal}</span></div>
+        <div class="detail-row"><span class="detail-label">Cliente final</span><span class="detail-val">${c.cliente}</span></div>
+        <div class="detail-row"><span class="detail-label">RUC cliente</span><span class="detail-val">${c.ruc_cliente}</span></div>
+        <div class="detail-row"><span class="detail-label">N° OC</span><span class="detail-val">${c.oc}</span></div>
+        <div class="detail-row"><span class="detail-label">Productos</span><span class="detail-val">${c.productos}</span></div>
+        <div class="detail-row"><span class="detail-label">Estado</span><span class="detail-val">${estadoBadge(c.estado)}</span></div>
+        <div class="modal-actions">
+          <button class="btn-outline" onclick="cerrarModal()">Cerrar</button>
+          <button class="btn-primary" onclick="cerrarModal();setTimeout(()=>verQR(${c.id}),50)"><i class="ti ti-qrcode"></i> Ver QR</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function abrirNueva() {
+  const sig = 'CART-' + new Date().getFullYear() + '-' + String(cartas.length+1).padStart(3,'0');
+  document.getElementById('modal-area').innerHTML = `
+    <div class="modal-overlay" onclick="cerrarModal()">
+      <div class="modal" onclick="event.stopPropagation()">
+        <h2><i class="ti ti-plus"></i> Nueva carta de autenticidad</h2>
+        <div class="form-group">
+          <label>Código (asignado automáticamente)</label>
+          <input type="text" value="${sig}" readonly style="background:#f5f5f3;font-weight:500;color:#185FA5">
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Canal (razón social)</label><input type="text" placeholder="Ej. Setelinf del Perú SAC" id="f-canal"></div>
+          <div class="form-group"><label>RUC del canal</label><input type="text" placeholder="20xxxxxxxxx" id="f-ruc-canal"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Cliente final</label><input type="text" placeholder="Razón social" id="f-cliente"></div>
+          <div class="form-group"><label>RUC del cliente final</label><input type="text" placeholder="20xxxxxxxxx" id="f-ruc-cliente"></div>
+        </div>
+        <div class="form-group"><label>N° de orden de compra</label><input type="text" placeholder="Ej. OC-2026-0142" id="f-oc"></div>
+        <div class="form-group"><label>Productos</label><input type="text" placeholder="Ej. WIN PRO 11 64BIT / OFFICE H&B 2024" id="f-productos"></div>
+        <div class="modal-actions">
+          <button class="btn-outline" onclick="cerrarModal()">Cancelar</button>
+          <button class="btn-primary" onclick="guardarNueva('${sig}')"><i class="ti ti-check"></i> Registrar y generar QR</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function guardarNueva(codigo) {
+  const canal = document.getElementById('f-canal').value || 'Canal sin nombre';
+  const ruc_canal = document.getElementById('f-ruc-canal').value || '—';
+  const cliente = document.getElementById('f-cliente').value || 'Cliente sin nombre';
+  const ruc_cliente = document.getElementById('f-ruc-cliente').value || '—';
+  const oc = document.getElementById('f-oc').value || '—';
+  const productos = document.getElementById('f-productos').value || '—';
+  const d = new Date();
+  const fecha = d.toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const nueva = { id: cartas.length+1, codigo, fecha, canal, ruc_canal, cliente, ruc_cliente, oc, productos, estado:'pendiente' };
+  cartas.push(nueva);
+  filtradas = [...cartas];
+  actualizarStats();
+  renderTabla();
+  cerrarModal();
+  setTimeout(() => verQR(nueva.id), 100);
+}
+
+actualizarStats();
+renderTabla();
+</script>
+</body>
+</html>
